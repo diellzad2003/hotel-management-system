@@ -1,5 +1,3 @@
-
-
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.temporal.ChronoUnit;
@@ -13,14 +11,21 @@ public class Booking {
     private LocalDate checkOut;
 
     public Booking(String bookingId, Room room, Guest guest, LocalDate checkIn, LocalDate checkOut) {
-        if (checkOut == null || checkIn == null || !checkOut.isAfter(checkIn)) {
+        if (checkIn == null || checkOut == null || !checkOut.isAfter(checkIn)) {
             throw new IllegalArgumentException("Check-out date must be after check-in date.");
         }
+
+        if (room.isBooked()) {
+            throw new IllegalStateException("Room " + room.getId() + " is already booked.");
+        }
+
         this.bookingId = bookingId;
         this.room = room;
         this.guest = guest;
         this.checkIn = checkIn;
         this.checkOut = checkOut;
+
+        room.book();
     }
 
     public String getBookingId() {
@@ -45,23 +50,28 @@ public class Booking {
 
     public BigDecimal getTotalCost() {
         long nights = ChronoUnit.DAYS.between(checkIn, checkOut);
-        return room.getRate().multiply(BigDecimal.valueOf(nights));
+        return BigDecimal.valueOf(room.getRate()).multiply(BigDecimal.valueOf(nights));
+
     }
 
     @Override
     public String toString() {
-        return "Booking{id=" + bookingId +
-                ", guest=" + guest.getFullName() +
-                ", room=" + room.getId() +
-                ", from=" + checkIn +
-                " to=" + checkOut +
-                ", total=" + getTotalCost() + "}";
+        return String.format(
+                "Booking{id=%s, guest=%s, room=%s, from=%s to=%s, total=%.2f}",
+                bookingId,
+                guest.getFullName(),
+                room.getId(),
+                checkIn,
+                checkOut,
+                getTotalCost()
+        );
     }
 
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
-        if (!(o instanceof Booking booking)) return false;
+        if (!(o instanceof Booking)) return false;
+        Booking booking = (Booking) o;
         return bookingId.equals(booking.bookingId);
     }
 
