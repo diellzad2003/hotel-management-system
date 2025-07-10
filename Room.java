@@ -1,34 +1,32 @@
-
-
-import java.math.BigDecimal;
-import java.util.Objects;
-
-public class Room {
+class Room implements Bookable, Chargeable {
     private String id;
     private String type;
-    private BigDecimal rate;
+    private double rate;
+    private boolean booked;
 
-    public Room(String id, String type, BigDecimal rate) {
+    public Room(String id, String type, double rate) {
         this.id = id;
         this.type = type;
-        this.rate = rate != null && rate.compareTo(BigDecimal.ZERO) >= 0 ? rate : BigDecimal.ZERO;
+        this.rate = Math.max(0, rate);
+        this.booked = false;
     }
 
-    public String getId() {
-        return id;
-    }
+    public String getId() { return id; }
+    public String getType() { return type; }
+    public double getRate() { return rate; }
 
-    public String getType() {
-        return type;
-    }
+    @Override
+    public boolean isBooked() { return booked; }
 
-    public BigDecimal getRate() {
-        return rate;
-    }
+    @Override
+    public void book() { this.booked = true; }
+
+    @Override
+    public double getCharge() { return rate; }
 
     @Override
     public String toString() {
-        return "Room{id=" + id + ", type=" + type + ", rate=" + rate + "}";
+        return "Room{id=" + id + ", type=" + type + ", rate=" + rate + ", booked=" + booked + "}";
     }
 
     @Override
@@ -40,6 +38,6 @@ public class Room {
 
     @Override
     public int hashCode() {
-        return Objects.hash(id);
+        return id.hashCode();
     }
 }
